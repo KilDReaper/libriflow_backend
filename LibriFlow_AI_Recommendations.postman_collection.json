@@ -1,0 +1,720 @@
+{
+  "info": {
+    "name": "LibriFlow - AI Recommendations",
+    "description": "Test collection for AI-powered book recommendation system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "book_id",
+      "value": "book_id_here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get Recommendations (Logged In)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of recommendations to return"
+            }
+          ]
+        },
+        "description": "Get personalized recommendations for logged-in user. Uses hybrid algorithm combining genre preferences, collaborative filtering, trending, and highly rated books."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations (Guest)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get trending recommendations for guest users (not logged in). Returns popular, trending, and highly rated books."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Trending Books",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/trending?limit=15",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "trending"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "15"
+            }
+          ]
+        },
+        "description": "Get trending books based on recent borrows and ratings. Public endpoint, no authentication required."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations by Genre - Fiction",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/genre/Fiction?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "genre", "Fiction"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get book recommendations for Fiction genre. If logged in, excludes already borrowed books."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations by Genre - Technology",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/genre/Technology?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "genre", "Technology"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get Technology genre recommendations (personalized if logged in)."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations by Genre - Science",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/genre/Science?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "genre", "Science"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get Science genre recommendations."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations by Genre - Mystery",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/genre/Mystery?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "genre", "Mystery"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get Mystery genre recommendations."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendations by Genre - Business",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/genre/Business?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["books", "recommendations", "genre", "Business"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get Business genre recommendations."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Similar Books",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/similar/{{book_id}}?limit=10",
+          "host": ["{{base_url}}"],
+          "path": [
+            "books",
+            "recommendations",
+            "similar",
+            "{{book_id}}"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get books similar to a specific book based on genres. Replace {{book_id}} with actual book MongoDB ObjectId."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Recommendation Explanation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/recommendations/explain/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": [
+            "books",
+            "recommendations",
+            "explain",
+            "{{book_id}}"
+          ]
+        },
+        "description": "Get explanation for why a book was recommended to the user. Requires authentication. Shows genre matches, rating, and popularity reasons."
+      },
+      "response": []
+    },
+    {
+      "name": "Test Scenario - Complete Flow",
+      "item": [
+        {
+          "name": "1. Register New User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_recommender\",\n  \"email\": \"recommender@test.com\",\n  \"password\": \"Test@1234\",\n  \"phoneNumber\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Step 1: Register a new user for testing"
+          }
+        },
+        {
+          "name": "2. Login User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"recommender@test.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Step 2: Login and copy JWT token to {{jwt_token}} variable"
+          }
+        },
+        {
+          "name": "3. Get Initial Recommendations (No History)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Step 3: Get recommendations (should return trending since no history)"
+          }
+        },
+        {
+          "name": "4. Borrow Technology Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{book_id}}\",\n  \"dueDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings"]
+            },
+            "description": "Step 4: Borrow a Technology genre book"
+          }
+        },
+        {
+          "name": "5. Borrow Science Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"another_book_id\",\n  \"dueDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings"]
+            },
+            "description": "Step 5: Borrow a Science genre book"
+          }
+        },
+        {
+          "name": "6. Get Personalized Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Step 6: Get personalized recommendations (should focus on Technology/Science)"
+          }
+        },
+        {
+          "name": "7. Get Similar Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/similar/{{book_id}}?limit=5",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "similar",
+                "{{book_id}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Step 7: Get similar books to borrowed book"
+          }
+        },
+        {
+          "name": "8. Get Explanation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/explain/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "explain",
+                "{{book_id}}"
+              ]
+            },
+            "description": "Step 8: Get recommendation explanation"
+          }
+        }
+      ],
+      "description": "Complete test scenario: Register → Login → Borrow books → Get personalized recommendations"
+    },
+    {
+      "name": "Test All Genres",
+      "item": [
+        {
+          "name": "Fiction",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Fiction?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Fiction"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Non-Fiction",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Non-Fiction?limit=5",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "genre",
+                "Non-Fiction"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Technology",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Technology?limit=5",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "genre",
+                "Technology"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Science",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Science?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Science"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "History",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/History?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "History"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mystery",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Mystery?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Mystery"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Romance",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Romance?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Romance"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fantasy",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Fantasy?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Fantasy"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Thriller",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Thriller?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Thriller"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Self-Help",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Self-Help?limit=5",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "genre",
+                "Self-Help"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Business",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Business?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["books", "recommendations", "genre", "Business"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Biography",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/recommendations/genre/Biography?limit=5",
+              "host": ["{{base_url}}"],
+              "path": [
+                "books",
+                "recommendations",
+                "genre",
+                "Biography"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Test recommendations for all available genres"
+    }
+  ]
+}

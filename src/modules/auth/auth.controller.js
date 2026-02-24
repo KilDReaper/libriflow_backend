@@ -41,7 +41,7 @@ export const uploadProfileImage = async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-    const avatarUrl = `${req.protocol}://${req.get("host")}/uploads/users/${req.file.filename}`;
+    const avatarUrl = `/uploads/users/${req.file.filename}`;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,

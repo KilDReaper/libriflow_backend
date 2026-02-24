@@ -1,0 +1,780 @@
+{
+  "info": {
+    "name": "LibriFlow - Fine & Payment System",
+    "description": "Complete API collection for LibriFlow Fine Management and Payment System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "your_admin_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "book_id",
+      "value": "book_id_here",
+      "type": "string"
+    },
+    {
+      "key": "borrowing_id",
+      "value": "borrowing_id_here",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "payment_id_here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Borrowings",
+      "item": [
+        {
+          "name": "Create Borrowing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{book_id}}\",\n  \"dueDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings"]
+            },
+            "description": "Create a new borrowing record"
+          }
+        },
+        {
+          "name": "Get My Borrowings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/my?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "my"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get user's borrowing records"
+          }
+        },
+        {
+          "name": "Get My Active Borrowings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/my/active",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "my", "active"]
+            },
+            "description": "Get user's currently active borrowings with estimated fines"
+          }
+        },
+        {
+          "name": "Get My Unpaid Fines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/my/unpaid-fines",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "my", "unpaid-fines"]
+            },
+            "description": "Get all unpaid fines for the current user"
+          }
+        },
+        {
+          "name": "Get Borrowing Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/{{borrowing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "{{borrowing_id}}"]
+            },
+            "description": "Get details of a specific borrowing"
+          }
+        },
+        {
+          "name": "Return Book",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/{{borrowing_id}}/return",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "{{borrowing_id}}", "return"]
+            },
+            "description": "Return a borrowed book and calculate any fines"
+          }
+        },
+        {
+          "name": "Mark Book as Lost",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/{{borrowing_id}}/lost",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "{{borrowing_id}}", "lost"]
+            },
+            "description": "Mark a borrowed book as lost"
+          }
+        },
+        {
+          "name": "Get My Borrowing Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/my/stats",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "my", "stats"]
+            },
+            "description": "Get user's borrowing statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Borrowings",
+      "item": [
+        {
+          "name": "Get All Borrowings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "user_id",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all borrowings (Admin only)"
+          }
+        },
+        {
+          "name": "Get Overdue Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings/overdue?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "overdue"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all overdue books with fine details"
+          }
+        },
+        {
+          "name": "Get All Unpaid Fines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings/unpaid-fines?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "unpaid-fines"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all unpaid fines across all users"
+          }
+        },
+        {
+          "name": "Get Borrowing Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/borrowings/stats",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "stats"]
+            },
+            "description": "Get borrowing statistics for the system"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment (Khalti)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"borrowingId\": \"{{borrowing_id}}\",\n  \"paymentMethod\": \"khalti\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["payments"]
+            },
+            "description": "Create a payment for fine using Khalti"
+          }
+        },
+        {
+          "name": "Create Payment (eSewa)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"borrowingId\": \"{{borrowing_id}}\",\n  \"paymentMethod\": \"esewa\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["payments"]
+            },
+            "description": "Create a payment for fine using eSewa"
+          }
+        },
+        {
+          "name": "Create Payment (Cash)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"borrowingId\": \"{{borrowing_id}}\",\n  \"paymentMethod\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["payments"]
+            },
+            "description": "Create a cash payment record"
+          }
+        },
+        {
+          "name": "Verify Payment (Khalti)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"khalti\",\n  \"token\": \"khalti_payment_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}/verify",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}", "verify"]
+            },
+            "description": "Verify Khalti payment"
+          }
+        },
+        {
+          "name": "Verify Payment (eSewa)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"esewa\",\n  \"amt\": 25,\n  \"rid\": \"esewa_reference_id\",\n  \"pid\": \"payment_transaction_id\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}/verify",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}", "verify"]
+            },
+            "description": "Verify eSewa payment"
+          }
+        },
+        {
+          "name": "Verify Payment (Cash - Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"cash\",\n  \"verifiedBy\": \"admin_user_id\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}/verify",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}", "verify"]
+            },
+            "description": "Verify cash payment (Admin only)"
+          }
+        },
+        {
+          "name": "Get My Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/my?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "my"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "success",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get user's payment history"
+          }
+        },
+        {
+          "name": "Get Payment Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}"]
+            },
+            "description": "Get details of a specific payment"
+          }
+        },
+        {
+          "name": "Cancel Payment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}", "cancel"]
+            },
+            "description": "Cancel a pending payment"
+          }
+        },
+        {
+          "name": "Retry Failed Payment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/{{payment_id}}/retry",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "{{payment_id}}", "retry"]
+            },
+            "description": "Retry a failed payment"
+          }
+        },
+        {
+          "name": "Get My Payment Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/my/stats",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "my", "stats"]
+            },
+            "description": "Get user's payment statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Payments",
+      "item": [
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/payments?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["payments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "success",
+                  "disabled": true
+                },
+                {
+                  "key": "paymentMethod",
+                  "value": "khalti",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all payments (Admin only)"
+          }
+        },
+        {
+          "name": "Get Payment Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/stats",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "stats"]
+            },
+            "description": "Get payment system statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Scenarios",
+      "item": [
+        {
+          "name": "Scenario 1 - Full Flow: Borrow → Return → Pay Fine",
+          "item": [
+            {
+              "name": "1. Borrow Book (1 day due)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookId\": \"{{book_id}}\",\n  \"dueDays\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/borrowings",
+                  "host": ["{{base_url}}"],
+                  "path": ["borrowings"]
+                },
+                "description": "Borrow a book with 1 day due (for testing)"
+              }
+            },
+            {
+              "name": "2. Check Borrowing (after 2+ days)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/borrowings/{{borrowing_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["borrowings", "{{borrowing_id}}"]
+                },
+                "description": "Check borrowing status (should show overdue)"
+              }
+            },
+            {
+              "name": "3. Return Book (calculates fine)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/borrowings/{{borrowing_id}}/return",
+                  "host": ["{{base_url}}"],
+                  "path": ["borrowings", "{{borrowing_id}}", "return"]
+                },
+                "description": "Return book - fine calculated automatically"
+              }
+            },
+            {
+              "name": "4. Create Khalti Payment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"borrowingId\": \"{{borrowing_id}}\",\n  \"paymentMethod\": \"khalti\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/payments",
+                  "host": ["{{base_url}}"],
+                  "path": ["payments"]
+                },
+                "description": "Create payment for the fine"
+              }
+            },
+            {
+              "name": "5. Verify Payment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"paymentMethod\": \"khalti\",\n  \"token\": \"test_khalti_token\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/payments/{{payment_id}}/verify",
+                  "host": ["{{base_url}}"],
+                  "path": ["payments", "{{payment_id}}", "verify"]
+                },
+                "description": "Verify payment - fine marked as paid"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scenario 2 - Cash Payment with Admin Verification",
+          "item": [
+            {
+              "name": "1. User creates cash payment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"borrowingId\": \"{{borrowing_id}}\",\n  \"paymentMethod\": \"cash\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/payments",
+                  "host": ["{{base_url}}"],
+                  "path": ["payments"]
+                },
+                "description": "User initiates cash payment at counter"
+              }
+            },
+            {
+              "name": "2. Admin verifies cash payment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"paymentMethod\": \"cash\",\n  \"verifiedBy\": \"admin_user_id\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/payments/{{payment_id}}/verify",
+                  "host": ["{{base_url}}"],
+                  "path": ["payments", "{{payment_id}}", "verify"]
+                },
+                "description": "Admin verifies cash payment at counter"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

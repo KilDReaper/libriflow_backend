@@ -1,0 +1,278 @@
+{
+  "info": {
+    "name": "LibriFlow - Reservation System",
+    "description": "Complete API collection for LibriFlow Book Reservation System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "book_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservation_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{book_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"]
+            },
+            "description": "Create a new book reservation. If book is available, it will be auto-approved. Otherwise, user will be added to queue."
+          }
+        },
+        {
+          "name": "Get My Reservations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/my?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "my"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "approved",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all reservations for the authenticated user"
+          }
+        },
+        {
+          "name": "Get Reservation by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}"]
+            },
+            "description": "Get details of a specific reservation"
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "cancel"]
+            },
+            "description": "Cancel a reservation. If approved, book quantity will be restored and next in queue will be approved."
+          }
+        },
+        {
+          "name": "Get Book Reservations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/book/{{book_id}}?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "book", "{{book_id}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all reservations for a specific book"
+          }
+        },
+        {
+          "name": "Get Queue Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/book/{{book_id}}/queue",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "book", "{{book_id}}", "queue"]
+            },
+            "description": "Get queue status for a book including queue length and all reservations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Reservations",
+      "item": [
+        {
+          "name": "Complete Reservation (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "complete"]
+            },
+            "description": "Mark a reservation as completed (book collected). Admin only."
+          }
+        },
+        {
+          "name": "Expire Old Reservations (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/expire",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "expire"]
+            },
+            "description": "Manually trigger expiration check for reservations past their expiration date. Admin only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Scenarios",
+      "item": [
+        {
+          "name": "Scenario 1 - Reserve Available Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"PUT_AVAILABLE_BOOK_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"]
+            },
+            "description": "Test with a book that has availableQuantity > 0. Should auto-approve."
+          }
+        },
+        {
+          "name": "Scenario 2 - Reserve Out of Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"PUT_OUT_OF_STOCK_BOOK_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"]
+            },
+            "description": "Test with a book that has availableQuantity = 0. Should add to queue."
+          }
+        },
+        {
+          "name": "Scenario 3 - Check Queue After Creation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservations/book/{{book_id}}/queue",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "book", "{{book_id}}", "queue"]
+            },
+            "description": "Check queue status after creating reservations"
+          }
+        },
+        {
+          "name": "Scenario 4 - Try Duplicate Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"SAME_BOOK_ID_AS_BEFORE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"]
+            },
+            "description": "Try to reserve the same book twice. Should fail with error."
+          }
+        }
+      ]
+    }
+  ]
+}

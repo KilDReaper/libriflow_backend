@@ -1,0 +1,481 @@
+{
+  "info": {
+    "name": "LibriFlow - QR Code Book Issue System",
+    "description": "Test collection for QR code-based book issuing system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{admin_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "your_admin_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "your_user_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "book_id",
+      "value": "book_id_here",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "user_id_here",  
+      "type": "string"
+    },
+    {
+      "key": "qr_code",
+      "value": "BOOK-QR-12345",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "QR Code Scan - Issue Book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"{{qr_code}}\",\n  \"userId\": \"{{user_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Admin scans QR code to issue book to user. Validates book availability, user status, and borrowing limits."
+      },
+      "response": []
+    },
+    {
+      "name": "Preparation - Add QR Code to Book",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"{{qr_code}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/admin/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "books", "{{book_id}}"]
+        },
+        "description": "Add QR code to an existing book. This is a one-time setup step."
+      },
+      "response": []
+    },
+    {
+      "name": "Verification - Check Book Details",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/admin/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "books", "{{book_id}}"]
+        },
+        "description": "Verify book has QR code and check available quantity."
+      },
+      "response": []
+    },
+    {
+      "name": "Verification - Check User's Borrowings",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{user_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/borrowings/my/active",
+          "host": ["{{base_url}}"],
+          "path": ["borrowings", "my", "active"]
+        },
+        "description": "Check user's active borrowings to verify book was issued."
+      },
+      "response": []
+    },
+    {
+      "name": "Error Test - Missing QR Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{user_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Test error handling when QR code is missing. Should return 400 error."
+      },
+      "response": []
+    },
+    {
+      "name": "Error Test - Missing User ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"{{qr_code}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Test error handling when user ID is missing. Should return 400 error."
+      },
+      "response": []
+    },
+    {
+      "name": "Error Test - Invalid QR Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"INVALID-QR-99999\",\n  \"userId\": \"{{user_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Test error handling with non-existent QR code. Should return 404 error."
+      },
+      "response": []
+    },
+    {
+      "name": "Error Test - Invalid User ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"{{qr_code}}\",\n  \"userId\": \"000000000000000000000000\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Test error handling with non-existent user ID. Should return 404 error."
+      },
+      "response": []
+    },
+    {
+      "name": "Error Test - Non-Admin Access",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{user_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"{{qr_code}}\",\n  \"userId\": \"{{user_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/borrow/scan",
+          "host": ["{{base_url}}"],
+          "path": ["borrow", "scan"]
+        },
+        "description": "Test access control. Regular user should not be able to scan QR codes. Should return 403 error."
+      },
+      "response": []
+    },
+    {
+      "name": "Complete Workflow Test",
+      "item": [
+        {
+          "name": "1. Login as Admin",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"your_admin_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Step 1: Login as admin and get JWT token. Copy token to {{admin_token}} variable."
+          }
+        },
+        {
+          "name": "2. Get List of Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/books?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Step 2: Get list of available books. Copy a book ID to {{book_id}} variable."
+          }
+        },
+        {
+          "name": "3. Add QR Code to Book",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"BOOK-QR-TEST-001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books", "{{book_id}}"]
+            },
+            "description": "Step 3: Assign QR code to the book."
+          }
+        },
+        {
+          "name": "4. Get List of Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Step 4: Get list of users. Copy a user ID to {{user_id}} variable."
+          }
+        },
+        {
+          "name": "5. Scan QR Code to Issue Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"BOOK-QR-TEST-001\",\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/borrow/scan",
+              "host": ["{{base_url}}"],
+              "path": ["borrow", "scan"]
+            },
+            "description": "Step 5: Scan QR code to issue book to user. This is the main endpoint!"
+          }
+        },
+        {
+          "name": "6. Verify Book Issued",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books", "{{book_id}}"]
+            },
+            "description": "Step 6: Verify book's availableQuantity decreased by 1."
+          }
+        },
+        {
+          "name": "7. Check User's Borrowings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/borrowings/my/active",
+              "host": ["{{base_url}}"],
+              "path": ["borrowings", "my", "active"]
+            },
+            "description": "Step 7: Login as user and verify the book appears in their active borrowings."
+          }
+        }
+      ],
+      "description": "Complete workflow from adding QR code to issuing book. Run steps in order."
+    },
+    {
+      "name": "Bulk Book Setup",
+      "item": [
+        {
+          "name": "Add QR Code - Book 1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"BOOK-9780132350884-001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books", "{{book_id}}"]
+            },
+            "description": "Setup QR code for first book using ISBN-based format."
+          }
+        },
+        {
+          "name": "Add QR Code - Book 2",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"BOOK-9780132350884-002\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/books/ANOTHER_BOOK_ID",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books", "ANOTHER_BOOK_ID"]
+            },
+            "description": "Setup QR code for second book (different copy)."
+          }
+        },
+        {
+          "name": "Add QR Code - Book 3",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"BOOK-9780201633610-001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/books/THIRD_BOOK_ID",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "books", "THIRD_BOOK_ID"]
+            },
+            "description": "Setup QR code for third book."
+          }
+        }
+      ],
+      "description": "Bulk setup of QR codes for multiple books."
+    }
+  ]
+}
