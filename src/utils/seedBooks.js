@@ -15,6 +15,7 @@ const sampleBooks = [
     publishedDate: new Date("2008-08-01"),
     genre: ["Technology", "Non-Fiction"],
     description: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg",
     price: 47.99,
     stockQuantity: 5,
     availableQuantity: 5,
@@ -32,6 +33,7 @@ const sampleBooks = [
     publishedDate: new Date("2019-09-13"),
     genre: ["Technology", "Non-Fiction"],
     description: "The Pragmatic Programmer is one of those rare tech books you'll read, re-read, and read again over the years.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780135957059-L.jpg",
     price: 41.99,
     stockQuantity: 3,
     availableQuantity: 3,
@@ -49,6 +51,7 @@ const sampleBooks = [
     publishedDate: new Date("1994-10-31"),
     genre: ["Technology", "Non-Fiction"],
     description: "Capturing a wealth of experience about the design of object-oriented software, four top-notch designers present a catalog of simple and succinct solutions to commonly occurring design problems.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780201633610-L.jpg",
     price: 54.99,
     stockQuantity: 2,
     availableQuantity: 2,
@@ -66,6 +69,7 @@ const sampleBooks = [
     publishedDate: new Date("2008-05-08"),
     genre: ["Technology", "Non-Fiction"],
     description: "Most programming languages contain good and bad parts, but JavaScript has more than its share of the bad.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780596517748-L.jpg",
     price: 29.99,
     stockQuantity: 4,
     availableQuantity: 4,
@@ -83,6 +87,7 @@ const sampleBooks = [
     publishedDate: new Date("2014-03-24"),
     genre: ["Technology", "Non-Fiction"],
     description: "No matter how much experience you have with JavaScript, odds are you don't fully understand the language.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9781449335588-L.jpg",
     price: 19.99,
     stockQuantity: 0,
     availableQuantity: 0,
@@ -100,6 +105,7 @@ const sampleBooks = [
     publishedDate: new Date("2018-12-04"),
     genre: ["Technology", "Non-Fiction"],
     description: "JavaScript lies at the heart of almost every modern web application. This book provides an overview of this language.",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9781593279509-L.jpg",
     price: 39.95,
     stockQuantity: 6,
     availableQuantity: 6,
@@ -117,6 +123,7 @@ const sampleBooks = [
     publishedDate: new Date("2018-10-16"),
     genre: ["Self-Help", "Non-Fiction"],
     description: "An Easy & Proven Way to Build Good Habits & Break Bad Ones",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg",
     price: 27.00,
     stockQuantity: 8,
     availableQuantity: 8,
@@ -134,6 +141,7 @@ const sampleBooks = [
     publishedDate: new Date("2011-09-13"),
     genre: ["Business", "Non-Fiction"],
     description: "How Today's Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses",
+    coverImageUrl: "https://covers.openlibrary.org/b/isbn/9780307887894-L.jpg",
     price: 26.00,
     stockQuantity: 3,
     availableQuantity: 3,
@@ -148,7 +156,7 @@ const sampleBooks = [
 const seedBooks = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ Connected to MongoDB");
 
     // Clear existing books (optional)

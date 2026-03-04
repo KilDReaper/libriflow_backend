@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import { pipeline } from "@xenova/transformers";
 import recommendationRepository from "./recommendation.repository.js";
+import Book from "../../models/book.model.js";
 
 /**
  * AI-Based Recommendation Service
@@ -10,6 +12,18 @@ import recommendationRepository from "./recommendation.repository.js";
  * 4. Quality-based (highest rated)
  */
 class RecommendationService {
+  constructor() {
+    this.embeddingModel = "Xenova/all-MiniLM-L6-v2";
+    this.extractor = null;
+  }
+
+  async initializeExtractor() {
+    if (!this.extractor) {
+      this.extractor = await pipeline('feature-extraction', this.embeddingModel);
+    }
+    return this.extractor;
+  }
+
   /**
    * Get personalized recommendations for logged-in user
    * @param {String} userId - User ID
@@ -202,6 +216,173 @@ class RecommendationService {
         `Failed to get genre recommendations: ${error.message}`
       );
     }
+  }
+
+  /**
+   * Get AI recommendations using embeddings with cached vectors in MongoDB
+   */
+  async getEmbeddingRecommendations(query, limit = 10) {
+    if (!query || !query.trim()) {
+      return await this.getTrendingRecommendations(limit);
+    }
+
+    try {
+      const books = await Book.find({
+        status: "available",
+        availableQuantity: { $gt: 0 },
+      })
+        .select("title author genre description coverImageUrl rating totalReviews availableQuantity bookEmbedding")
+        .lean();
+
+      if (!books.length) {
+        return {
+          success: true,
+          personalized: false,
+          total: 0,
+          recommendations: [],
+          metadata: {
+            algorithm: "embedding",
+            model: this.embeddingModel,
+          },
+        };
+      }
+
+      const missingEmbedding = books
+        .filter((book) => !Array.isArray(book.bookEmbedding) || book.bookEmbedding.length === 0)
+        .map((book) => ({
+          id: book._id,
+          text: this.buildBookText(book),
+        }))
+        .filter((entry) => entry.text.length > 0);
+
+      if (missingEmbedding.length > 0) {
+        await this.populateEmbeddings(missingEmbedding);
+      }
+
+      const refreshedBooks = await Book.find({
+        _id: { $in: books.map((book) => book._id) },
+      })
+        .select("title author genre description coverImageUrl rating totalReviews availableQuantity bookEmbedding")
+        .lean();
+
+      const queryEmbedding = await this.fetchEmbedding(query);
+
+      const scored = refreshedBooks
+        .filter((book) => Array.isArray(book.bookEmbedding) && book.bookEmbedding.length > 0)
+        .map((book) => ({
+          ...book,
+          recommendationScore: this.cosineSimilarity(queryEmbedding, book.bookEmbedding),
+          reason: "AI embedding match",
+        }))
+        .sort((a, b) => b.recommendationScore - a.recommendationScore)
+        .slice(0, limit);
+
+      return {
+        success: true,
+        personalized: false,
+        total: scored.length,
+        recommendations: scored,
+        metadata: {
+          algorithm: "embedding",
+          model: this.embeddingModel,
+        },
+      };
+    } catch (error) {
+      console.error("Embedding recommendation failed, falling back to genre-based:", error.message);
+      return await this.getRecommendationsByGenre(query, null, limit);
+    }
+  }
+
+  buildBookText(book) {
+    const parts = [book.title, book.author, ...(book.genre || []), book.description];
+    return parts.filter(Boolean).join(" | ");
+  }
+
+  async populateEmbeddings(missingEmbedding) {
+    const batchSize = 16;
+    for (let i = 0; i < missingEmbedding.length; i += batchSize) {
+      const batch = missingEmbedding.slice(i, i + batchSize);
+      const texts = batch.map((item) => item.text);
+      const embeddings = await this.fetchEmbeddings(texts);
+      await Promise.all(
+        batch.map((item, index) =>
+          Book.updateOne({ _id: item.id }, { bookEmbedding: embeddings[index] })
+        )
+      );
+    }
+  }
+
+  async fetchEmbedding(text) {
+    const [embedding] = await this.fetchEmbeddings([text]);
+    return embedding;
+  }
+
+  async fetchEmbeddings(texts) {
+    try {
+      // Use local embeddings (no API needed)
+      const extractor = await this.initializeExtractor();
+      const embeddings = [];
+      
+      for (const text of texts) {
+        const output = await extractor(text, { pooling: 'mean', normalize: true });
+        embeddings.push(Array.from(output.data));
+      }
+      
+      return embeddings;
+    } catch (error) {
+      console.error("Local embedding error:", error.message);
+      throw new Error(`Local embedding failed: ${error.message}`);
+    }
+  }
+
+  normalizeEmbedding(vector) {
+    if (!Array.isArray(vector)) {
+      return [];
+    }
+
+    if (vector.length > 0 && typeof vector[0] === "number") {
+      return vector;
+    }
+
+    if (Array.isArray(vector[0])) {
+      const tokenEmbeddings = vector;
+      const dims = tokenEmbeddings[0]?.length || 0;
+      if (dims === 0) {
+        return [];
+      }
+      const pooled = new Array(dims).fill(0);
+      for (const token of tokenEmbeddings) {
+        for (let i = 0; i < dims; i += 1) {
+          pooled[i] += token[i] || 0;
+        }
+      }
+      return pooled.map((value) => value / tokenEmbeddings.length);
+    }
+
+    return [];
+  }
+
+  cosineSimilarity(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length === 0 || b.length === 0) {
+      return 0;
+    }
+
+    const length = Math.min(a.length, b.length);
+    let dot = 0;
+    let normA = 0;
+    let normB = 0;
+
+    for (let i = 0; i < length; i += 1) {
+      dot += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+
+    if (normA === 0 || normB === 0) {
+      return 0;
+    }
+
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
   /**

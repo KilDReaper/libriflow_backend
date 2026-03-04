@@ -4,24 +4,64 @@ import User from "../../models/user.model.js";
 
 export const reservationService = {
 
-  async createReservation(userId, bookId) {
+  async createReservation(userId, bookId, externalId, title, author, coverImageUrl) {
     const user = await User.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
 
-    const book = await Book.findById(bookId);
-    if (!book) {
-      throw new Error("Book not found");
+    let finalBookId = bookId;
+
+    // If it's an external book (Google Books), verify it or create a minimal record
+    if (externalId && !bookId) {
+      // Check if external book is already in our system
+      let book = await Book.findOne({ externalId });
+      
+      if (!book) {
+        try {
+          // Create a minimal record for external book
+          book = new Book({
+            externalId,
+            title,
+            author,
+            isbn: `EXT-${externalId}`, // Unique ISBN based on externalId
+            price: 0,
+            stockQuantity: 999,
+            availableQuantity: 999,
+            coverImageUrl,
+            description: "External book from Google Books",
+            status: "available",
+            source: "google_books",
+          });
+          await book.save();
+        } catch (err) {
+          // If duplicate key error (E11000), try to find existing book
+          if (err.code === 11000) {
+            book = await Book.findOne({ externalId });
+            if (!book) {
+              throw new Error("Failed to create or find external book");
+            }
+          } else {
+            throw err;
+          }
+        }
+      }
+      finalBookId = book._id;
+    } else if (bookId) {
+      // Verify library book exists
+      const book = await Book.findById(bookId);
+      if (!book) {
+        throw new Error("Book not found");
+      }
     }
 
-    if (book.status === "discontinued") {
+    if (book && book.status === "discontinued") {
       throw new Error("This book is no longer available for reservation");
     }
 
     const existingReservation = await reservationRepository.findActiveByUserAndBook(
       userId,
-      bookId
+      finalBookId
     );
 
     if (existingReservation) {
@@ -30,11 +70,12 @@ export const reservationService = {
       );
     }
 
-    const isAvailable = book.availableQuantity > 0;
+    const bookForCheck = await Book.findById(finalBookId);
+    const isAvailable = bookForCheck.availableQuantity > 0;
 
     let reservationData = {
       user: userId,
-      book: bookId,
+      book: finalBookId,
       status: isAvailable ? "approved" : "pending",
       expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days
     };
@@ -43,11 +84,11 @@ export const reservationService = {
       reservationData.approvedAt = new Date();
       reservationData.queuePosition = null;
 
-      await Book.findByIdAndUpdate(bookId, {
+      await Book.findByIdAndUpdate(finalBookId, {
         $inc: { availableQuantity: -1 },
       });
     } else {
-      const maxQueuePosition = await reservationRepository.getMaxQueuePosition(bookId);
+      const maxQueuePosition = await reservationRepository.getMaxQueuePosition(finalBookId);
       reservationData.queuePosition = maxQueuePosition + 1;
     }
 

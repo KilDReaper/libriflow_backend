@@ -4,18 +4,23 @@ export const reservationController = {
 
   async createReservation(req, res, next) {
     try {
-      const { bookId } = req.body;
+      const { bookId, externalId, title, author, coverImageUrl } = req.body;
 
-      if (!bookId) {
+      // Must have either bookId or externalId
+      if (!bookId && !externalId) {
         return res.status(400).json({
           success: false,
-          message: "Book ID is required",
+          message: "Book ID or External ID is required",
         });
       }
 
       const reservation = await reservationService.createReservation(
         req.user.id,
-        bookId
+        bookId,
+        externalId,
+        title,
+        author,
+        coverImageUrl
       );
 
       res.status(201).json({

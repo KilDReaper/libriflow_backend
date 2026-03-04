@@ -14,8 +14,8 @@ const bookSchema = new mongoose.Schema(
     },
     isbn: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       trim: true,
     },
     qrCode: {
@@ -38,7 +38,17 @@ const bookSchema = new mongoose.Schema(
         "Fiction",
         "Non-Fiction",
         "Science",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Mathematics",
+        "Computer Science",
+        "English",
+        "Literature",
         "History",
+        "Geography",
+        "Economics",
+        "Political Science",
         "Biography",
         "Mystery",
         "Romance",
@@ -47,6 +57,7 @@ const bookSchema = new mongoose.Schema(
         "Self-Help",
         "Technology",
         "Business",
+        "Academic",
         "Other",
       ],
       default: ["Other"],
@@ -92,6 +103,20 @@ const bookSchema = new mongoose.Schema(
     totalReviews: {
       type: Number,
       default: 0,
+    },
+    bookEmbedding: {
+      type: [Number],
+      default: [],
+    },
+    externalId: {
+      type: String,
+      sparse: true,
+      trim: true,
+    },
+    source: {
+      type: String,
+      enum: ["library", "google_books"],
+      default: "library",
     },
     status: {
       type: String,

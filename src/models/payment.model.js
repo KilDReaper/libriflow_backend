@@ -69,7 +69,7 @@ const paymentSchema = new mongoose.Schema(
 // Indexes for quick lookups
 paymentSchema.index({ user: 1, paymentStatus: 1 });
 paymentSchema.index({ borrowing: 1 });
-paymentSchema.index({ transactionId: 1 });
+// transactionId has unique: true so no need for explicit index
 paymentSchema.index({ externalTransactionId: 1 });
 paymentSchema.index({ createdAt: -1 });
 

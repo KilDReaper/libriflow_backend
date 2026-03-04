@@ -14,7 +14,7 @@ export const borrowingService = {
   /**
    * Create a new borrowing record
    */
-  async createBorrowing(userId, bookId, dueDays = 14) {
+  async createBorrowing(userId, bookId, externalId, title, author, coverImageUrl, dueDays = 14) {
     try {
       // Validate user
       const user = await User.findById(userId);
@@ -22,14 +22,54 @@ export const borrowingService = {
         throw new Error("User not found");
       }
 
-      // Validate book
-      const book = await Book.findById(bookId);
-      if (!book) {
-        throw new Error("Book not found");
+      let finalBookId = bookId;
+
+      // If it's an external book (Google Books), verify it or create a minimal record
+      if (externalId && !bookId) {
+        // Check if external book is already in our system
+        let book = await Book.findOne({ externalId });
+        
+        if (!book) {
+          try {
+            // Create a minimal record for external book
+            book = new Book({
+              externalId,
+              title,
+              author,
+              isbn: `EXT-${externalId}`, // Unique ISBN based on externalId
+              price: 0,
+              stockQuantity: 999,
+              availableQuantity: 999,
+              coverImageUrl,
+              description: "External book from Google Books",
+              status: "available",
+              source: "google_books",
+            });
+            await book.save();
+          } catch (err) {
+            // If duplicate key error (E11000), try to find existing book
+            if (err.code === 11000) {
+              book = await Book.findOne({ externalId });
+              if (!book) {
+                throw new Error("Failed to create or find external book");
+              }
+            } else {
+              throw err;
+            }
+          }
+        }
+        finalBookId = book._id;
+      } else if (bookId) {
+        // Verify library book exists
+        const book = await Book.findById(bookId);
+        if (!book) {
+          throw new Error("Book not found");
+        }
       }
 
       // Check book availability
-      if (book.availableQuantity < 1) {
+      const bookForBorrow = await Book.findById(finalBookId);
+      if (bookForBorrow.availableQuantity < 1) {
         throw new Error("Book not available for borrowing");
       }
 
@@ -49,7 +89,7 @@ export const borrowingService = {
       // Create borrowing record
       const borrowingData = {
         user: userId,
-        book: bookId,
+        book: finalBookId,
         borrowDate,
         dueDate,
         status: "active",
@@ -58,7 +98,7 @@ export const borrowingService = {
       const borrowing = await borrowingRepository.create(borrowingData);
 
       // Decrease book availability
-      await Book.findByIdAndUpdate(bookId, {
+      await Book.findByIdAndUpdate(finalBookId, {
         $inc: { availableQuantity: -1 },
       });
 

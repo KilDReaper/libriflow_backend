@@ -1,4 +1,5 @@
 import recommendationService from "./recommendation.service.js";
+import externalBooksService from "../../services/externalBooks.service.js";
 
 /**
  * Get AI-powered book recommendations
@@ -43,6 +44,24 @@ export const getRecommendationsByGenre = async (req, res, next) => {
     const { genre } = req.params;
     const userId = req.user?._id?.toString();
     const limit = parseInt(req.query.limit) || 10;
+    const dataType = req.query.dataType;
+    const classLevel = req.query.class;
+    const course = req.query.course || genre;
+
+    if (dataType === "academic" && course) {
+      const query = `${course}${classLevel ? ` ${classLevel}` : ""}`.trim();
+      const result = await recommendationService.getEmbeddingRecommendations(
+        query,
+        limit
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "AI recommendations retrieved successfully",
+        data: result,
+      });
+      return;
+    }
 
     const result = await recommendationService.getRecommendationsByGenre(
       genre,
@@ -119,6 +138,41 @@ export const getTrendingBooks = async (req, res, next) => {
       success: true,
       message: "Trending books retrieved successfully",
       data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get external book recommendations from Google Books and Open Library
+ * Public endpoint - no authentication required
+ */
+export const getExternalRecommendations = async (req, res, next) => {
+  try {
+    const query = req.query.q || req.query.query;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Query parameter is required",
+      });
+    }
+
+    const books = await externalBooksService.getExternalRecommendations(
+      query,
+      limit
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Found ${books.length} external recommendations`,
+      data: {
+        total: books.length,
+        recommendations: books,
+        sources: ["google_books", "open_library"],
+      },
     });
   } catch (error) {
     next(error);

@@ -43,6 +43,9 @@ router.get("/genre/:genre", optionalAuth, controller.getRecommendationsByGenre);
 // Get similar books based on a specific book (public)
 router.get("/similar/:bookId", controller.getSimilarBooks);
 
+// Get external recommendations from Google Books and Open Library (public)
+router.get("/external", controller.getExternalRecommendations);
+
 // Get explanation for a recommendation (requires auth)
 router.get("/explain/:bookId", optionalAuth, controller.getRecommendationExplanation);
 

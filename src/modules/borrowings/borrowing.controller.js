@@ -12,18 +12,23 @@ export const borrowingController = {
    */
   async createBorrowing(req, res, next) {
     try {
-      const { bookId, dueDays } = req.body;
+      const { bookId, externalId, title, author, coverImageUrl, dueDays } = req.body;
 
-      if (!bookId) {
+      // Must have either bookId or externalId
+      if (!bookId && !externalId) {
         return res.status(400).json({
           success: false,
-          message: "Book ID is required",
+          message: "Book ID or External ID is required",
         });
       }
 
       const borrowing = await borrowingService.createBorrowing(
         req.user.id,
         bookId,
+        externalId,
+        title,
+        author,
+        coverImageUrl,
         dueDays || 14
       );
 
