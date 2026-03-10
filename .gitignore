@@ -3,3 +3,12 @@ node_modules
 .env
 
 /generated/prisma
+
+# Exclude documentation files
+*.md
+
+# Exclude Postman collections
+*.postman_collection.json
+
+# Exclude uploads directory
+uploads/
